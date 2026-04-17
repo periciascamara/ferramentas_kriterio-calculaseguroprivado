@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Invalidez (IAIF e SUSEP) — v1.0.0</title>
+  <title>Calculadora de Invalidez (IAIF e SUSEP) — v1.1.0</title>
   <style>
     :root {
       --bg-color: #0f172a;
@@ -19,686 +19,711 @@
       --action-blue: #3b82f6;
       --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-bottom: 60px; }
+    .container { max-width: 1060px; margin: 0 auto; padding: 20px; }
 
-    body {
-      font-family: var(--font-family);
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      line-height: 1.6;
-      padding-bottom: 60px;
-    }
+    .glass { background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
 
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    /* Glassmorphism */
-    .glass {
-      background: var(--card-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding: 15px 20px;
-    }
-
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px 20px; flex-wrap: wrap; gap: 10px; }
     h1 { font-size: 1.5rem; color: var(--accent); }
     h2 { font-size: 1.25rem; margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 5px; }
 
-    /* Contacts */
-    .contact-links a {
-      color: var(--text-main);
-      text-decoration: none;
-      margin-left: 15px;
-      font-size: 0.9rem;
-      transition: color 0.3s;
-    }
+    .contact-links a { color: var(--text-main); text-decoration: none; margin-left: 15px; font-size: 0.9rem; transition: color 0.3s; }
     .contact-links a:hover { color: var(--accent); }
 
-    /* Forms */
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-    }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px; }
+    .form-group input, .form-group select { background: rgba(15,23,42,0.8); border: 1px solid var(--glass-border); color: var(--text-main); padding: 8px 12px; border-radius: 6px; font-family: inherit; font-size: 14px; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
+    .collapsible { cursor: pointer; user-select: none; }
+    .collapsible::after { content: '\25BC'; float: right; font-size: 0.8rem; }
+    .collapsible.active::after { content: '\25B2'; }
+    .collapsible-content { display: none; margin-top: 15px; }
 
-    .form-group label {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      margin-bottom: 5px;
-    }
-
-    .form-group input, .form-group select {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-family: inherit;
-    }
-
-    .form-group input:focus, .form-group select:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    /* Collapsible */
-    .collapsible {
-      cursor: pointer;
-      user-select: none;
-    }
-    .collapsible::after {
-      content: '\25BC';
-      float: right;
-      font-size: 0.8rem;
-    }
-    .collapsible.active::after {
-      content: '\25B2';
-    }
-    .collapsible-content {
-      display: none;
-      margin-top: 15px;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--glass-border);
-    }
-    .tab-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 1rem;
-      border-bottom: 2px solid transparent;
-      transition: all 0.3s;
-    }
-    .tab-btn.active {
-      color: var(--accent);
-      border-bottom: 2px solid var(--accent);
-    }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); }
+    .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 10px 20px; cursor: pointer; font-size: 1rem; border-bottom: 2px solid transparent; transition: all 0.3s; }
+    .tab-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* IAIF questions */
-    .question-block {
-      background: rgba(0,0,0,0.2);
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
+    .question-block { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
     .question-title { margin-bottom: 10px; font-weight: 600; }
-    .radio-option, .check-option {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-    }
+    .radio-option, .check-option { display: flex; align-items: center; margin-bottom: 8px; }
     .radio-option input, .check-option input { margin-right: 10px; }
 
     /* SUSEP Layout */
-    .susep-layout {
-      display: flex;
-      gap: 30px;
-      flex-wrap: wrap;
-    }
-    .susep-svg {
-      flex: 1;
-      min-width: 280px;
-      text-align: center;
-    }
-    .susep-svg svg {
-      max-width: 100%;
-      height: 450px;
-    }
-    .svg-part {
-      fill: #475569;
-      stroke: #0f172a;
-      stroke-width: 2;
-      cursor: pointer;
-      transition: fill 0.3s;
-    }
-    .svg-part:hover, .svg-part.selected {
-      fill: var(--accent);
-    }
-    .susep-panel {
-      flex: 1;
-      min-width: 300px;
-    }
+    .susep-layout { display: flex; gap: 20px; flex-wrap: wrap; }
+    .susep-svg { flex: 0 0 320px; text-align: center; }
+    .susep-svg svg { max-width: 100%; height: 520px; }
+
+    /* Partes do boneco */
+    .svg-part { fill: #334155; stroke: #0f172a; stroke-width: 1.5; cursor: pointer; transition: fill 0.25s; }
+    .svg-part:hover { fill: #64748b; }
+    .svg-part.selected { fill: var(--accent); }
+
+    /* Segmentos de coluna — cor diferenciada */
+    .svg-spine { fill: #1e3a5f; stroke: #0f172a; stroke-width: 1.2; cursor: pointer; transition: fill 0.25s; }
+    .svg-spine:hover { fill: #2563eb; }
+    .svg-spine.selected { fill: var(--accent); }
+
+    .susep-panel { flex: 1; min-width: 300px; }
+
+    /* Modal de lesão */
     #susep-modal {
       display: none;
-      background: rgba(30, 41, 59, 0.95);
+      background: rgba(15, 23, 42, 0.97);
       border: 1px solid var(--accent);
       padding: 20px;
-      border-radius: 8px;
+      border-radius: 10px;
       margin-bottom: 15px;
     }
-    .susep-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0,0,0,0.2);
-      padding: 10px;
-      margin-bottom: 5px;
-      border-radius: 4px;
-    }
-    .remove-btn { color: var(--danger); cursor: pointer; border: none; background: none; }
+    #susep-modal h3 { color: var(--accent); margin-bottom: 6px; font-size: 1rem; }
+    .modal-badge { display: inline-block; background: var(--primary); color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; margin-bottom: 12px; }
+    .modal-section-title { font-size: 0.8rem; color: var(--text-muted); margin: 10px 0 6px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-    /* Action Buttons */
-    .actions-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
+    /* Card de avaliação de coluna */
+    .spine-criteria { margin-top: 10px; }
+    .spine-criteria .criterion-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px; margin-bottom: 6px;
+      border-left: 3px solid #334155; transition: border-color 0.2s;
     }
-    .btn {
-      padding: 10px 15px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: opacity 0.2s;
-    }
+    .spine-criteria .criterion-row:hover { border-left-color: var(--accent); }
+    .spine-criteria label { cursor: pointer; font-size: 0.88rem; flex: 1; margin-left: 8px; }
+    .spine-criteria .pct-badge { font-size: 0.8rem; color: var(--accent); font-weight: 700; white-space: nowrap; margin-left: 10px; }
+
+    .susep-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 10px; margin-bottom: 5px; border-radius: 6px; }
+    .remove-btn { color: var(--danger); cursor: pointer; border: none; background: none; font-size: 1rem; padding: 2px 6px; }
+
+    .actions-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .btn { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 5px; transition: opacity 0.2s; font-size: 0.9rem; }
     .btn:hover { opacity: 0.8; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-save { background: var(--success); }
     .btn-export { background: var(--action-blue); }
     .btn-sim { background: var(--accent); color: #000; }
     .btn-del { background: var(--danger); }
+    .btn-cancel { background: #475569; }
 
-    /* Results */
-    .result-box {
-      margin-top: 20px;
-      padding: 15px;
-      background: rgba(0,0,0,0.3);
-      border-left: 4px solid var(--accent);
-      border-radius: 4px;
-      font-size: 1.1rem;
-    }
+    .result-box { margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-left: 4px solid var(--accent); border-radius: 4px; font-size: 1.05rem; }
 
-    /* History Table */
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--glass-border); font-size: 0.9rem; }
     th { color: var(--accent); }
 
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      border-top: 1px solid var(--glass-border);
-      margin-top: 40px;
-    }
+    footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--glass-border); margin-top: 40px; }
+
+    .legenda-svg { display: flex; gap: 16px; justify-content: center; margin-top: 8px; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-muted); }
+    .legenda-item { display: flex; align-items: center; gap: 5px; }
+    .legenda-dot { width: 12px; height: 12px; border-radius: 3px; }
   </style>
 </head>
 <body>
+<div class="container">
 
-  <div class="container">
-    <header class="glass">
-      <h1>Calculadora de Invalidez</h1>
-      <div class="contact-links">
-        <a href="https://linkedin.com/in/gcamara" target="_blank">🔗 LinkedIn</a>
-        <a href="mailto:contatos@editoraviva.art.br">✉️ E-mail</a>
-        <a href="https://periciascamara.editoraviva.art.br" target="_blank">🌐 Site</a>
+  <header class="glass">
+    <h1>🏥 Calculadora de Invalidez</h1>
+    <div class="contact-links">
+      <a href="https://linkedin.com/in/gcamara" target="_blank">🔗 LinkedIn</a>
+      <a href="mailto:contatos@editoraviva.art.br">✉️ E-mail</a>
+      <a href="https://periciascamara.editoraviva.art.br" target="_blank">🌐 Site</a>
+    </div>
+  </header>
+
+  <!-- Cadastro Aplicador -->
+  <section class="glass">
+    <h2 class="collapsible" onclick="toggleCol(this)">👨‍⚕️ Cadastro do Aplicador (Perito)</h2>
+    <div class="collapsible-content form-grid" style="display:grid;">
+      <div class="form-group"><label>Nome do Perito</label><input type="text" id="perito_nome"></div>
+      <div class="form-group"><label>CRM / Registro</label><input type="text" id="perito_registro"></div>
+      <div class="form-group"><label>Instituição</label><input type="text" id="perito_local"></div>
+      <div class="form-group"><label>Data</label><input type="date" id="perito_data"></div>
+    </div>
+  </section>
+
+  <!-- Cadastro Segurado -->
+  <section class="glass">
+    <h2 class="collapsible" onclick="toggleCol(this)">👤 Cadastro do Usuário (Segurado)</h2>
+    <div class="collapsible-content form-grid" style="display:grid;">
+      <div class="form-group"><label>Nome Completo</label><input type="text" id="segurado_nome"></div>
+      <div class="form-group"><label>Documento (CPF)</label><input type="text" id="segurado_cpf"></div>
+      <div class="form-group"><label>Data de Nascimento</label><input type="date" id="segurado_nasc"></div>
+    </div>
+  </section>
+
+  <!-- Avaliação -->
+  <section class="glass">
+    <h2>📋 Avaliação</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('iaif', event)">IFPD (Doença / IAIF)</button>
+      <button class="tab-btn" onclick="switchTab('susep', event)">IPA (Acidente / Tabela SUSEP)</button>
+    </div>
+
+    <!-- IAIF Tab -->
+    <div id="tab-iaif" class="tab-content active">
+      <p style="margin-bottom:15px; color:var(--text-muted);">
+        Instrumento de Avaliação de Invalidez Funcional (IAIF). Pontuação mínima de <strong>60 pontos</strong> para configurar Invalidez Funcional Permanente.
+      </p>
+      <div class="question-block">
+        <div class="question-title">1. Relações do Segurado com o cotidiano (Atributo de 1º Grau)</div>
+        <div class="radio-option"><input type="radio" name="iaif_v1" value="0"> 0pts — Mantém relações, deambula livremente, sai à rua sozinho.</div>
+        <div class="radio-option"><input type="radio" name="iaif_v1" value="10"> 10pts — Apresenta desorientação, necessita de auxílio à locomoção.</div>
+        <div class="radio-option"><input type="radio" name="iaif_v1" value="20"> 20pts — Retido ao lar, perda na mobilidade, não realiza atividades.</div>
       </div>
-    </header>
-
-    <!-- Cadastro de Avaliador -->
-    <section class="glass">
-      <h2 class="collapsible" onclick="toggleCol(this)"> Cadastro do Aplicador (Perito)</h2>
-      <div class="collapsible-content form-grid" style="display: grid;">
-        <div class="form-group">
-          <label>Nome do Perito</label>
-          <input type="text" id="perito_nome">
-        </div>
-        <div class="form-group">
-          <label>CRM / Registro</label>
-          <input type="text" id="perito_registro">
-        </div>
-        <div class="form-group">
-          <label>Instituição</label>
-          <input type="text" id="perito_local">
-        </div>
-        <div class="form-group">
-          <label>Data</label>
-          <input type="date" id="perito_data">
-        </div>
+      <div class="question-block">
+        <div class="question-title">2. Condições Clínicas e Estruturais (Atributo de 1º Grau)</div>
+        <div class="radio-option"><input type="radio" name="iaif_v2" value="0"> 0pts — Hígido, livre movimentação, sem disfunção.</div>
+        <div class="radio-option"><input type="radio" name="iaif_v2" value="10"> 10pts — Disfunção secundária, depende de suporte médico assistido.</div>
+        <div class="radio-option"><input type="radio" name="iaif_v2" value="20"> 20pts — Quadro clínico avançado/instável, restrição ampla, suporte constante.</div>
       </div>
-    </section>
-
-    <!-- Cadastro do Segurado/Paciente -->
-    <section class="glass">
-      <h2 class="collapsible" onclick="toggleCol(this)"> Cadastro do Usuário (Segurado)</h2>
-      <div class="collapsible-content form-grid" style="display: grid;">
-        <div class="form-group">
-          <label>Nome Completo</label>
-          <input type="text" id="segurado_nome">
-        </div>
-        <div class="form-group">
-          <label>Documento (CPF)</label>
-          <input type="text" id="segurado_cpf">
-        </div>
-        <div class="form-group">
-          <label>Data de Nascimento</label>
-          <input type="date" id="segurado_nasc">
-        </div>
+      <div class="question-block">
+        <div class="question-title">3. Conectividade do Segurado com a vida (Atributo de 1º Grau)</div>
+        <div class="radio-option"><input type="radio" name="iaif_v3" value="0"> 0pts — Autossuficiência para vestir-se, higiene, alimentação.</div>
+        <div class="radio-option"><input type="radio" name="iaif_v3" value="10"> 10pts — Necessita auxílio parcial (trocar roupa, banho, preparo alimento).</div>
+        <div class="radio-option"><input type="radio" name="iaif_v3" value="20"> 20pts — Necessita auxílio total para higiene e necessidades fisiológicas.</div>
       </div>
-    </section>
-
-    <!-- Avaliação -->
-    <section class="glass">
-      <h2>Avaliação</h2>
-      <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('iaif')">IFPD (Doença / IAIF)</button>
-        <button class="tab-btn" onclick="switchTab('susep')">IPA (Acidente / Tabela SUSEP)</button>
+      <div class="question-block">
+        <div class="question-title">Fatores de Risco e Morbidade (Atributo de 2º Grau)</div>
+        <div class="check-option"><input type="checkbox" id="iaif_c1" value="2"> Idade interfere na morbidade e/ou IMC &gt; 40 (+2 pts)</div>
+        <div class="check-option"><input type="checkbox" id="iaif_c2" value="2"> Risco de sangramentos ou ocorrências iminentes (+2 pts)</div>
+        <div class="check-option"><input type="checkbox" id="iaif_c3" value="4"> Mais de 2 fatores de risco e/ou associação de doenças (+4 pts)</div>
+        <div class="check-option"><input type="checkbox" id="iaif_c4" value="4"> Recidiva, progressão da doença ou disfunção imunológica (+4 pts)</div>
+        <div class="check-option"><input type="checkbox" id="iaif_c5" value="8"> Risco de morte súbita, trat. paliativo ou refratariedade (+8 pts)</div>
       </div>
+      <button class="btn btn-save" onclick="calcularIAIF()">🧮 Calcular Pontuação IAIF</button>
+      <div id="resultado-iaif"></div>
+    </div>
 
-      <!-- IAIF Tab -->
-      <div id="tab-iaif" class="tab-content active">
-        <p style="margin-bottom: 15px; color: var(--text-muted);">
-          Instrumento de Avaliação de Invalidez Funcional (IAIF). O quadro clínico deverá atingir o limite mínimo de **60 pontos** para comprovar Invalidez Funcional.
-        </p>
+    <!-- SUSEP Tab -->
+    <div id="tab-susep" class="tab-content">
+      <p style="margin-bottom:10px; color:var(--text-muted);">
+        Selecione os membros ou segmentos afetados clicando no boneco. <strong style="color:var(--accent);">Coluna vertebral segmentada</strong> — clique em cada região para avaliar.
+      </p>
 
-        <!-- Relações (Obrigatório) -->
-        <div class="question-block">
-          <div class="question-title">1. Relações do Segurado com o cotidiano (Atributo de 1º Grau)</div>
-          <div class="radio-option"><input type="radio" name="iaif_v1" value="0"> 0pts - Mantém relações, deambula livremente, sai à rua sozinho.</div>
-          <div class="radio-option"><input type="radio" name="iaif_v1" value="10"> 10pts - Apresenta desorientação, necessita de auxílio à locomoção.</div>
-          <div class="radio-option"><input type="radio" name="iaif_v1" value="20"> 20pts - Retido ao lar, perda na mobilidade, não realiza atividades.</div>
-        </div>
+      <div class="susep-layout">
 
-        <div class="question-block">
-          <div class="question-title">2. Condições Clínicas e Estruturais (Atributo de 1º Grau)</div>
-          <div class="radio-option"><input type="radio" name="iaif_v2" value="0"> 0pts - Hígido, livre movimentação, sem disfunção.</div>
-          <div class="radio-option"><input type="radio" name="iaif_v2" value="10"> 10pts - Disfunção secundária, depende de suporte médico assistido.</div>
-          <div class="radio-option"><input type="radio" name="iaif_v2" value="20"> 20pts - Quadro clínico avançado/instável, restrição ampla, suporte constante.</div>
-        </div>
+        <!-- SVG BONECO -->
+        <div class="susep-svg">
+          <svg viewBox="0 0 300 520" xmlns="http://www.w3.org/2000/svg">
 
-        <div class="question-block">
-          <div class="question-title">3. Conectividade do Segurado com a vida (Atributo de 1º Grau)</div>
-          <div class="radio-option"><input type="radio" name="iaif_v3" value="0"> 0pts - Autossuficiência para vestir-se, higiene, alimentação.</div>
-          <div class="radio-option"><input type="radio" name="iaif_v3" value="10"> 10pts - Necessita auxílio parcial (trocar roupa, banho, preparo alimento).</div>
-          <div class="radio-option"><input type="radio" name="iaif_v3" value="20"> 20pts - Necessita auxílio total para higiene e necessidades fisiológicas.</div>
-        </div>
+            <!-- ── CABEÇA ── -->
+            <circle cx="150" cy="38" r="28" class="svg-part" id="svg_visao_ambos_olhos"
+              onclick="openModal('visao_ambos_olhos','Cabeça / Visão Ambos os Olhos',100,'standard')"/>
+            <text x="150" y="43" fill="#fff" font-size="8" text-anchor="middle" pointer-events="none">Cabeça</text>
 
-        <!-- Fatores Extras (Checkboxes) -->
-        <div class="question-block">
-          <div class="question-title">Fatores de Risco e Morbidade (Atributo de 2º Grau)</div>
-          <div class="check-option"><input type="checkbox" id="iaif_c1" value="2"> Idade interfere na morbidade e/ou IMC > 40 (+2 pts)</div>
-          <div class="check-option"><input type="checkbox" id="iaif_c2" value="2"> Risco de sangramentos ou ocorrências iminentes (+2 pts)</div>
-          <div class="check-option"><input type="checkbox" id="iaif_c3" value="4"> Mais de 2 fatores de risco e/ou associação de doenças (+4 pts)</div>
-          <div class="check-option"><input type="checkbox" id="iaif_c4" value="4"> Recidiva, progressão da doença ou disfunção imunológica (+4 pts)</div>
-          <div class="check-option"><input type="checkbox" id="iaif_c5" value="8"> Risco de morte súbita, trat. paliativo ou refratariedade (+8 pts)</div>
-        </div>
+            <!-- ── PESCOÇO / COLUNA CERVICAL ── -->
+            <rect x="138" y="68" width="24" height="18" rx="4" class="svg-spine" id="svg_coluna_cervical"
+              onclick="openModal('coluna_cervical','Coluna Cervical',null,'spine')"/>
+            <text x="150" y="81" fill="#93c5fd" font-size="7" text-anchor="middle" pointer-events="none">Cerv.</text>
 
-        <button class="btn btn-save" onclick="calcularIAIF()" style="margin-top: 10px;">Calcular Pontuação IAIF</button>
-        <div id="resultado-iaif"></div>
-      </div>
+            <!-- ── TORSO SUPERIOR (ombros) ── -->
+            <rect x="95" y="88" width="110" height="30" rx="6" class="svg-part" id="svg_alienacao_mental"
+              onclick="openModal('alienacao_mental','Tórax / Alienação Mental e Diversos',100,'standard')"/>
+            <text x="150" y="107" fill="#fff" font-size="8" text-anchor="middle" pointer-events="none">Tórax / Div.</text>
 
-      <!-- SUSEP Tab -->
-      <div id="tab-susep" class="tab-content">
-        <p style="margin-bottom: 15px; color: var(--text-muted);">
-          Indenização por Invalidez Permanente por Acidente. Selecione os membros afetados no corpo e informe o grau de perda.
-        </p>
+            <!-- ── COLUNA TORÁCICA ── -->
+            <rect x="133" y="120" width="34" height="32" rx="4" class="svg-spine" id="svg_coluna_toracica"
+              onclick="openModal('coluna_toracica','Coluna Torácica (Dorsal)',null,'spine')"/>
+            <text x="150" y="140" fill="#93c5fd" font-size="7" text-anchor="middle" pointer-events="none">Torác.</text>
 
-        <div class="susep-layout">
-          <div class="susep-svg">
-            <svg viewBox="0 0 300 450">
-              <!-- Cabeça -->
-              <circle cx="150" cy="50" r="30" class="svg-part" id="svg_visao_ambos_olhos" onclick="openSusepModal('visao_ambos_olhos', 'Visão Ambos os Olhos (100%)', 100)"/>
-              <text x="150" y="55" fill="#fff" font-size="10" text-anchor="middle" pointer-events="none">Cabeça</text>
-              
-              <!-- Torso -->
-              <rect x="110" y="90" width="80" height="120" rx="10" class="svg-part" id="svg_alienacao_mental" onclick="openSusepModal('alienacao_mental', 'Alienação Mental/Diversos (100%)', 100)"/>
-              
-              <!-- Braço Esq -->
-              <rect x="60" y="90" width="40" height="80" rx="8" class="svg-part" id="svg_braco_esquerdo" onclick="openSusepModal('braco_esquerdo', 'Braço Esquerdo (70%)', 70)"/>
-              <text x="80" y="130" fill="#fff" font-size="10" text-anchor="middle" pointer-events="none">Br.E</text>
+            <!-- ── BRAÇO ESQUERDO ── -->
+            <rect x="58" y="90" width="34" height="70" rx="8" class="svg-part" id="svg_braco_esquerdo"
+              onclick="openModal('braco_esquerdo','Braço Esquerdo',70,'standard')"/>
+            <text x="75" y="128" fill="#fff" font-size="8" text-anchor="middle" pointer-events="none">Br.E</text>
 
-              <!-- Mão Esq -->
-              <circle cx="80" cy="180" r="15" class="svg-part" id="svg_mao_esquerda" onclick="openSusepModal('mao_esquerda', 'Mão Esquerda (60%)', 60)"/>
+            <!-- ── BRAÇO DIREITO ── -->
+            <rect x="208" y="90" width="34" height="70" rx="8" class="svg-part" id="svg_braco_direito"
+              onclick="openModal('braco_direito','Braço Direito',70,'standard')"/>
+            <text x="225" y="128" fill="#fff" font-size="8" text-anchor="middle" pointer-events="none">Br.D</text>
 
-              <!-- Braço Dir -->
-              <rect x="200" y="90" width="40" height="80" rx="8" class="svg-part" id="svg_braco_direito" onclick="openSusepModal('braco_direito', 'Braço Direito (70%)', 70)"/>
-              <text x="220" y="130" fill="#fff" font-size="10" text-anchor="middle" pointer-events="none">Br.D</text>
+            <!-- ── MÃO ESQUERDA ── -->
+            <ellipse cx="75" cy="172" rx="16" ry="12" class="svg-part" id="svg_mao_esquerda"
+              onclick="openModal('mao_esquerda','Mão Esquerda',60,'standard')"/>
+            <text x="75" y="176" fill="#fff" font-size="7" text-anchor="middle" pointer-events="none">Mão E</text>
 
-              <!-- Mão Dir -->
-              <circle cx="220" cy="180" r="15" class="svg-part" id="svg_mao_direita" onclick="openSusepModal('mao_direita', 'Mão Direita (60%)', 60)"/>
+            <!-- ── MÃO DIREITA ── -->
+            <ellipse cx="225" cy="172" rx="16" ry="12" class="svg-part" id="svg_mao_direita"
+              onclick="openModal('mao_direita','Mão Direita',60,'standard')"/>
+            <text x="225" y="176" fill="#fff" font-size="7" text-anchor="middle" pointer-events="none">Mão D</text>
 
-              <!-- Perna Esq -->
-              <rect x="112" y="220" width="35" height="110" rx="8" class="svg-part" id="svg_perna_esquerda" onclick="openSusepModal('perna_esquerda', 'Perna Esquerda (70%)', 70)"/>
-              <text x="130" y="270" fill="#fff" font-size="10" text-anchor="middle" pointer-events="none">Pn.E</text>
+            <!-- ── COLUNA LOMBAR ── -->
+            <rect x="133" y="154" width="34" height="28" rx="4" class="svg-spine" id="svg_coluna_lombar"
+              onclick="openModal('coluna_lombar','Coluna Lombar',null,'spine')"/>
+            <text x="150" y="172" fill="#93c5fd" font-size="7" text-anchor="middle" pointer-events="none">Lombar</text>
 
-              <!-- Pé Esq -->
-              <circle cx="130" cy="345" r="15" class="svg-part" id="svg_pe_esquerdo" onclick="openSusepModal('pe_esquerdo', 'Pé Esquerdo (50%)', 50)"/>
+            <!-- ── COLUNA SACRAL / SACRO-ILÍACA ── -->
+            <rect x="133" y="184" width="34" height="22" rx="4" class="svg-spine" id="svg_coluna_sacral"
+              onclick="openModal('coluna_sacral','Região Sacral / Sacro-Ilíaca',null,'spine')"/>
+            <text x="150" y="199" fill="#93c5fd" font-size="7" text-anchor="middle" pointer-events="none">Sacral</text>
 
-              <!-- Perna Dir -->
-              <rect x="153" y="220" width="35" height="110" rx="8" class="svg-part" id="svg_perna_direita" onclick="openSusepModal('perna_direita', 'Perna Direita (70%)', 70)"/>
-              <text x="170" y="270" fill="#fff" font-size="10" text-anchor="middle" pointer-events="none">Pn.D</text>
+            <!-- ── PELVE ── -->
+            <ellipse cx="150" cy="214" rx="40" ry="16" class="svg-part" id="svg_pelve"
+              onclick="openModal('pelve','Pelve / Bacia',30,'standard')"/>
+            <text x="150" y="218" fill="#fff" font-size="7" text-anchor="middle" pointer-events="none">Pelve</text>
 
-              <!-- Pé Dir -->
-              <circle cx="170" cy="345" r="15" class="svg-part" id="svg_pe_direito" onclick="openSusepModal('pe_direito', 'Pé Direito (50%)', 50)"/>
-            </svg>
-          </div>
+            <!-- ── PERNA ESQUERDA ── -->
+            <rect x="108" y="232" width="34" height="100" rx="8" class="svg-part" id="svg_perna_esquerda"
+              onclick="openModal('perna_esquerda','Perna Esquerda',70,'standard')"/>
+            <text x="125" y="285" fill="#fff" font-size="8" text-anchor="middle" pointer-events="none">Pn.E</text>
 
-          <div class="susep-panel">
-            <div class="form-group" style="margin-bottom: 20px;">
-              <label>Valor Base / Segurado (R$)</label>
-              <input type="number" id="susep_valor" placeholder="Ex: 100000" value="0">
-            </div>
+            <!-- ── PERNA DIREITA ── -->
+            <rect x="158" y="232" width="34" height="100" rx="8" class="svg-part" id="svg_perna_direita"
+              onclick="openModal('perna_direita','Perna Direita',70,'standard')"/>
+            <text x="175" y="285" fill="#fff" font-size="8" text-anchor="middle" pointer-events="none">Pn.D</text>
 
-            <!-- Modal para input -->
-            <div id="susep-modal">
-              <h3 id="modal_membro_nome">Membro</h3>
-              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Grau de Redução Funcional:</p>
-              
-              <div class="radio-option"><input type="radio" name="grau_perda" value="1.0"> Total (100%)</div>
-              <div class="radio-option"><input type="radio" name="grau_perda" value="0.75"> Máxima (75%)</div>
-              <div class="radio-option"><input type="radio" name="grau_perda" value="0.50"> Média (50%)</div>
-              <div class="radio-option"><input type="radio" name="grau_perda" value="0.25"> Mínima (25%)</div>
+            <!-- ── PÉ ESQUERDO ── -->
+            <ellipse cx="122" cy="344" rx="18" ry="11" class="svg-part" id="svg_pe_esquerdo"
+              onclick="openModal('pe_esquerdo','Pé Esquerdo',50,'standard')"/>
+            <text x="122" y="348" fill="#fff" font-size="7" text-anchor="middle" pointer-events="none">Pé E</text>
 
-              <input type="hidden" id="modal_membro_id">
-              <input type="hidden" id="modal_membro_taxa">
-              <button class="btn btn-save" style="margin-top:10px; padding: 5px 10px;" onclick="addLesao()">Adicionar</button>
-            </div>
+            <!-- ── PÉ DIREITO ── -->
+            <ellipse cx="178" cy="344" rx="18" ry="11" class="svg-part" id="svg_pe_direito"
+              onclick="openModal('pe_direito','Pé Direito',50,'standard')"/>
+            <text x="178" y="348" fill="#fff" font-size="7" text-anchor="middle" pointer-events="none">Pé D</text>
 
-            <div id="lista-lesoes">
-              <h3 style="font-size:1rem; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;">Lesões Avaliadas</h3>
-              <!-- Lesões aparecem aqui -->
-            </div>
+            <!-- LABEL COLUNA lateral -->
+            <text x="186" y="138" fill="#60a5fa" font-size="7.5" text-anchor="start">◄ Coluna</text>
+            <text x="186" y="169" fill="#60a5fa" font-size="7.5" text-anchor="start">◄ Lombar</text>
+            <text x="186" y="197" fill="#60a5fa" font-size="7.5" text-anchor="start">◄ Sacral</text>
 
-            <button class="btn btn-save" onclick="calcularSUSEP()" style="margin-top: 15px; width: 100%; justify-content: center;">Calcular Indenização</button>
-            <div id="resultado-susep"></div>
+          </svg>
+
+          <div class="legenda-svg">
+            <div class="legenda-item"><div class="legenda-dot" style="background:#334155;"></div> Membro/Órgão</div>
+            <div class="legenda-item"><div class="legenda-dot" style="background:#1e3a5f;"></div> Coluna Vertebral</div>
+            <div class="legenda-item"><div class="legenda-dot" style="background:var(--accent);"></div> Selecionado</div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- Barra de Ações -->
-    <section class="actions-bar">
-      <button class="btn btn-save" onclick="salvarRegistro()">💾 Salvar Avaliação</button>
-      <button class="btn btn-export" onclick="gerarRelatorioLatex()">📄 Gerar LaTeX</button>
-      <button class="btn btn-export" onclick="exportarCSV()">📊 Exportar CSV</button>
-      <button class="btn btn-export" onclick="copiarParaClipboard()">📋 Copiar Texto</button>
-      <button class="btn btn-sim" onclick="simularDados()">⚡ Simular Dados</button>
-      <button class="btn btn-del" onclick="apagarTodosDados()">🗑️ Apagar Tudo</button>
-    </section>
+        <!-- PAINEL DIREITO -->
+        <div class="susep-panel">
 
-    <!-- Lista de Registros -->
-    <section class="glass">
-      <h2>Registros Salvos</h2>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Avaliado</th>
-              <th>Tipo</th>
-              <th>Resultado</th>
-            </tr>
-          </thead>
-          <tbody id="tabela-registros">
-            <!-- Povoado por JS -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <footer>
-      Calculadora de Invalidez — Ecossistema Perícias Câmara / Veridicus I.A. <br>
-      A elaboração de dados atende às normativas IAIF e Tabelas SUSEP. <br>
-      <span style="color:var(--text-main); font-weight:600;">v1.0.0</span>
-    </footer>
-  </div>
-
-  <script>
-    const APP_VERSION = '1.0.0';
-    let currentTab = 'iaif';
-
-    // Estado SUSEP
-    let lesoes = []; // { id, nome, taxaTabela, grau, taxaFinal }
-
-    // Utilitários de UI
-    function toggleCol(el) {
-      el.classList.toggle('active');
-      let content = el.nextElementSibling;
-      if (content.style.display === 'grid' || content.style.display === 'block') {
-        content.style.display = 'none';
-      } else {
-        content.style.display = 'grid'; // Grid é usado na classe form-grid
-      }
-    }
-
-    function switchTab(tabId) {
-      currentTab = tabId;
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + tabId).classList.add('active');
-    }
-
-    // --- LÓGICA IAIF ---
-    let lastIaifResult = {};
-    function calcularIAIF() {
-      // 3 Atributos obrigatórios
-      let v1 = document.querySelector('input[name="iaif_v1"]:checked');
-      let v2 = document.querySelector('input[name="iaif_v2"]:checked');
-      let v3 = document.querySelector('input[name="iaif_v3"]:checked');
-
-      if (!v1 || !v2 || !v3) {
-        alert("Preencha os três atributos fundamentais da avaliação do cotidiano (itens 1, 2 e 3).");
-        return null;
-      }
-
-      let pts = parseInt(v1.value) + parseInt(v2.value) + parseInt(v3.value);
-
-      // Fatores extras
-      if(document.getElementById('iaif_c1').checked) pts += 2;
-      if(document.getElementById('iaif_c2').checked) pts += 2;
-      if(document.getElementById('iaif_c3').checked) pts += 4;
-      if(document.getElementById('iaif_c4').checked) pts += 4;
-      if(document.getElementById('iaif_c5').checked) pts += 8;
-
-      let passou = pts >= 60;
-
-      let color = passou ? "var(--success)" : "var(--danger)";
-      let txt = passou ? "Aprovado: Invalidez Funcional Permanente Total configurada (>= 60 pts)." : "Negado: Pontuação não atingiu o mínimo de 60 pontos exigido.";
-
-      let div = document.getElementById('resultado-iaif');
-      div.className = "result-box";
-      div.style.borderLeftColor = color;
-      div.innerHTML = `<strong>Pontuação Final: ${pts} pontos</strong><br><span style="color:${color}">${txt}</span>`;
-
-      lastIaifResult = { pts, status: passou ? 'Aprovado' : 'Negado' };
-      return lastIaifResult;
-    }
-
-    // --- LÓGICA SUSEP ---
-    function openSusepModal(id, nome, taxa) {
-      document.getElementById('modal_membro_nome').innerText = nome;
-      document.getElementById('modal_membro_id').value = id;
-      document.getElementById('modal_membro_taxa').value = taxa;
-
-      // Reset radio
-      document.querySelectorAll('input[name="grau_perda"]').forEach(r => r.checked = false);
-
-      document.getElementById('susep-modal').style.display = 'block';
-    }
-
-    function addLesao() {
-      let id = document.getElementById('modal_membro_id').value;
-      let taxa = parseFloat(document.getElementById('modal_membro_taxa').value);
-      let nome = document.getElementById('modal_membro_nome').innerText;
-      
-      let radio = document.querySelector('input[name="grau_perda"]:checked');
-      if (!radio) {
-        alert("Selecione o grau de perda funcional.");
-        return;
-      }
-      let grau = parseFloat(radio.value);
-      let grauStr = (grau * 100) + "%";
-
-      let taxaFinal = taxa * grau;
-
-      // Filter existing
-      lesoes = lesoes.filter(l => l.id !== id);
-      lesoes.push({id, nome, taxaTabela: taxa, grau, grauStr, taxaFinal});
-
-      document.getElementById('susep-modal').style.display = 'none';
-      document.getElementById('svg_' + id).classList.add('selected');
-
-      renderListaLesoes();
-    }
-
-    function removeLesao(id) {
-      lesoes = lesoes.filter(l => l.id !== id);
-      document.getElementById('svg_' + id).classList.remove('selected');
-      renderListaLesoes();
-    }
-
-    function renderListaLesoes() {
-      let div = document.getElementById('lista-lesoes');
-      div.innerHTML = `<h3 style="font-size:1rem; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;">Lesões Avaliadas</h3>`;
-      lesoes.forEach(l => {
-        div.innerHTML += `
-          <div class="susep-item">
-            <div>
-              <strong>${l.nome.split('(')[0]}</strong><br>
-              <small>Grau: ${l.grauStr} → Invalidez: ${l.taxaFinal}%</small>
-            </div>
-            <button class="remove-btn" onclick="removeLesao('${l.id}')">X</button>
+          <div class="form-group" style="margin-bottom:18px;">
+            <label>💰 Valor Base do Seguro (R$)</label>
+            <input type="number" id="susep_valor" placeholder="Ex: 100000" value="0">
           </div>
-        `;
-      });
-    }
 
-    let lastSusepResult = {};
-    function calcularSUSEP() {
-      if(lesoes.length === 0) {
-        alert("Adicione pelo menos uma lesão clicando no boneco anatômico.");
-        return null;
-      }
+          <!-- MODAL DE AVALIAÇÃO -->
+          <div id="susep-modal">
+            <h3 id="modal_membro_nome">—</h3>
+            <span class="modal-badge" id="modal_badge">Tabela SUSEP</span>
 
-      let totalInvalidez = 0;
-      // Trava por membro (nesse MVP simplificado, IDs únicos previnem repetição do mesmo membro superior)
-      lesoes.forEach(l => totalInvalidez += l.taxaFinal);
+            <!-- Bloco padrão (membros) -->
+            <div id="modal_standard">
+              <div class="modal-section-title">Grau de Redução Funcional</div>
+              <div class="radio-option"><input type="radio" name="grau_perda" value="1.00"> Perda Total (100%)</div>
+              <div class="radio-option"><input type="radio" name="grau_perda" value="0.75"> Perda Máxima (75%)</div>
+              <div class="radio-option"><input type="radio" name="grau_perda" value="0.50"> Perda Média (50%)</div>
+              <div class="radio-option"><input type="radio" name="grau_perda" value="0.25"> Perda Mínima (25%)</div>
+            </div>
 
-      let travado = false;
-      if (totalInvalidez > 100) {
-        totalInvalidez = 100;
-        travado = true;
-      }
+            <!-- Bloco coluna vertebral -->
+            <div id="modal_spine" style="display:none;">
+              <div class="modal-section-title">Selecione o critério de invalidez permanente (SUSEP)</div>
+              <div class="spine-criteria" id="spine_criteria_list">
+                <!-- preenchido por JS -->
+              </div>
+            </div>
 
-      let valorBase = parseFloat(document.getElementById('susep_valor').value) || 0;
-      let valorFinal = valorBase * (totalInvalidez / 100);
+            <input type="hidden" id="modal_membro_id">
+            <input type="hidden" id="modal_membro_taxa">
+            <input type="hidden" id="modal_tipo">
 
-      let div = document.getElementById('resultado-susep');
-      div.className = "result-box";
-      
-      let html = `<strong>Percentual de Invalidez: ${totalInvalidez}%</strong>`;
-      if(travado) {
-        html += `<br><small style="color:var(--accent);">Nota: A soma ultrapassou 100%, mas foi limitada ao teto global conforme SUSEP.</small>`;
-      }
-      if(valorBase > 0) {
-        html += `<br><span style="color:var(--success); font-size:1.2rem;">Indenização: R$ ${valorFinal.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</span>`;
-      } else {
-        html += `<br><small>Informe o Valor Base para calcular R$.</small>`;
-      }
+            <div style="display:flex; gap:8px; margin-top:14px;">
+              <button class="btn btn-save" style="padding:7px 14px;" onclick="addLesao()">✔ Adicionar Lesão</button>
+              <button class="btn btn-cancel" style="padding:7px 14px;" onclick="fecharModal()">✕ Cancelar</button>
+            </div>
+          </div>
 
-      div.innerHTML = html;
-      lastSusepResult = { totalInvalidez, valorFinal, valorBase };
-      return lastSusepResult;
-    }
+          <!-- Lista de lesões -->
+          <div id="lista-lesoes">
+            <h3 style="font-size:0.95rem; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;">Lesões Avaliadas</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem;">Nenhuma lesão adicionada.</p>
+          </div>
 
-    // --- MANEJO DE REGISTROS ---
-    function salvarRegistro() {
-      let nome = document.getElementById('segurado_nome').value;
-      if (!nome) { alert("Informe o Nome do Segurado."); return; }
+          <button class="btn btn-save" onclick="calcularSUSEP()" style="margin-top:15px; width:100%; justify-content:center;">🧮 Calcular Indenização</button>
+          <div id="resultado-susep"></div>
+        </div>
 
-      let registro = {
-        dataSalvo: new Date().toLocaleDateString('pt-BR'),
-        tipo: currentTab.toUpperCase(),
-        perito: document.getElementById('perito_nome').value,
-        paciente: nome,
-        cpf: document.getElementById('segurado_cpf').value
-      };
+      </div><!-- .susep-layout -->
+    </div><!-- tab-susep -->
+  </section>
 
-      if (currentTab === 'iaif') {
-        let res = calcularIAIF();
-        if(!res) return;
-        registro.resultado = `${res.pts} pts - ${res.status}`;
-        registro.detalhes = JSON.stringify(res);
-      } else {
-        let res = calcularSUSEP();
-        if(!res) return;
-        registro.resultado = `${res.totalInvalidez}% - R$ ${res.valorFinal.toFixed(2)}`;
-        registro.detalhes = JSON.stringify(lesoes);
-      }
+  <!-- Barra de Ações -->
+  <section class="actions-bar">
+    <button class="btn btn-save"   onclick="salvarRegistro()">💾 Salvar Avaliação</button>
+    <button class="btn btn-export" onclick="gerarRelatorioLatex()">📄 Gerar LaTeX</button>
+    <button class="btn btn-export" onclick="exportarCSV()">📊 Exportar CSV</button>
+    <button class="btn btn-export" onclick="copiarParaClipboard()">📋 Copiar Texto</button>
+    <button class="btn btn-sim"    onclick="simularDados()">⚡ Simular Dados</button>
+    <button class="btn btn-del"    onclick="apagarTodosDados()">🗑️ Apagar Tudo</button>
+  </section>
 
-      let histórico = JSON.parse(localStorage.getItem('invalidez_historico') || '[]');
-      histórico.push(registro);
-      localStorage.setItem('invalidez_historico', JSON.stringify(histórico));
-      
-      alert("Registro salvo com sucesso!");
-      carregarHistorico();
-    }
+  <!-- Registros -->
+  <section class="glass">
+    <h2>📁 Registros Salvos</h2>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Data</th><th>Avaliado</th><th>Tipo</th><th>Resultado</th></tr></thead>
+        <tbody id="tabela-registros"></tbody>
+      </table>
+    </div>
+  </section>
 
-    function carregarHistorico() {
-      let histórico = JSON.parse(localStorage.getItem('invalidez_historico') || '[]');
-      let tb = document.getElementById('tabela-registros');
-      tb.innerHTML = '';
-      histórico.forEach(h => {
-        tb.innerHTML += `
-          <tr>
-            <td>${h.dataSalvo}</td>
-            <td>${h.paciente}</td>
-            <td>${h.tipo}</td>
-            <td style="font-weight:600; color:var(--success)">${h.resultado}</td>
-          </tr>
-        `;
-      });
-    }
+  <footer>
+    Calculadora de Invalidez — Ecossistema Perícias Câmara / Veridicus I.A.<br>
+    A elaboração de dados atende às normativas IAIF e Tabelas SUSEP.<br>
+    <span style="color:var(--text-main); font-weight:600;">v1.1.0</span>
+    &nbsp;·&nbsp; 🤖 Desenvolvido em <a href="https://claude.ai" target="_blank" style="color:var(--accent);">claude.ai</a>
+  </footer>
 
-    // --- FUNÇÕES DE EXPORTAÇÃO ---
-    function gerarRelatorioLatex() {
-      let hist = JSON.parse(localStorage.getItem('invalidez_historico') || '[]');
-      if(hist.length === 0) { alert("Nenhum registro salvo para exportar LaTeX."); return; }
-      
-      let item = hist[hist.length-1]; // Baixa o último
+</div><!-- .container -->
 
-      let template = `\\documentclass[12pt,a4paper]{article}
+<script>
+const APP_VERSION = '1.1.0';
+let currentTab = 'iaif';
+let lesoes = [];
+
+// ════════════════════════════════
+//  TABELA SUSEP COMPLETA
+// ════════════════════════════════
+const tabelaSusep = {
+  visao_ambos_olhos: 100,
+  ambos_membros_superiores: 100,
+  ambos_membros_inferiores: 100,
+  alienacao_mental: 100,
+  braco_direito: 70,
+  braco_esquerdo: 70,
+  mao_direita: 60,
+  mao_esquerda: 60,
+  perna_direita: 70,
+  perna_esquerda: 70,
+  pe_direito: 50,
+  pe_esquerdo: 50,
+  pelve: 30,
+  visao_um_olho: 30,
+  surdez_ambos_ouvidos: 40,
+  surdez_um_ouvido: 20,
+  // Coluna — cada critério tem seu próprio %
+  coluna_cervical: null,
+  coluna_toracica: null,
+  coluna_lombar: null,
+  coluna_sacral: null,
+};
+
+// ════════════════════════════════
+//  CRITÉRIOS DE COLUNA (SUSEP)
+// ════════════════════════════════
+const spineCriteria = {
+  coluna_cervical: [
+    { id: 'cerv_anquilose_total',       label: 'Anquilose total (imobilidade completa)',                    pct: 70 },
+    { id: 'cerv_anquilose_parcial',     label: 'Anquilose parcial em má posição',                           pct: 50 },
+    { id: 'cerv_limitacao_grave',       label: 'Limitação grave de movimentos (>50% arco)',                  pct: 40 },
+    { id: 'cerv_limitacao_moderada',    label: 'Limitação moderada de movimentos (25–50%)',                  pct: 25 },
+    { id: 'cerv_limitacao_leve',        label: 'Limitação leve de movimentos (<25%)',                        pct: 10 },
+    { id: 'cerv_fratura_instavel',      label: 'Fratura com instabilidade segmentar comprovada',             pct: 50 },
+    { id: 'cerv_lesao_radicular',       label: 'Lesão radicular com déficit motor/sensitivo permanente',     pct: 30 },
+    { id: 'cerv_mielopatia',            label: 'Mielopatia cervical com déficit neurológico',                pct: 70 },
+  ],
+  coluna_toracica: [
+    { id: 'tor_anquilose_total',        label: 'Anquilose total (imobilidade completa)',                    pct: 60 },
+    { id: 'tor_anquilose_parcial',      label: 'Anquilose parcial em má posição',                           pct: 40 },
+    { id: 'tor_limitacao_grave',        label: 'Limitação grave de movimentos (>50% arco)',                  pct: 35 },
+    { id: 'tor_limitacao_moderada',     label: 'Limitação moderada de movimentos (25–50%)',                  pct: 20 },
+    { id: 'tor_limitacao_leve',         label: 'Limitação leve de movimentos (<25%)',                        pct: 10 },
+    { id: 'tor_fratura_compressao',     label: 'Fratura por compressão com cifose residual',                 pct: 30 },
+    { id: 'tor_lesao_radicular',        label: 'Lesão radicular com déficit motor/sensitivo permanente',     pct: 25 },
+    { id: 'tor_paraplegia_parcial',     label: 'Paraplegia parcial por lesão medular torácica',              pct: 70 },
+    { id: 'tor_paraplegia_total',       label: 'Paraplegia total por lesão medular torácica',                pct: 100 },
+  ],
+  coluna_lombar: [
+    { id: 'lom_anquilose_total',        label: 'Anquilose total (imobilidade completa)',                    pct: 60 },
+    { id: 'lom_anquilose_parcial',      label: 'Anquilose parcial em má posição',                           pct: 40 },
+    { id: 'lom_limitacao_grave',        label: 'Limitação grave de movimentos (>50% arco)',                  pct: 35 },
+    { id: 'lom_limitacao_moderada',     label: 'Limitação moderada de movimentos (25–50%)',                  pct: 20 },
+    { id: 'lom_limitacao_leve',         label: 'Limitação leve de movimentos (<25%)',                        pct: 10 },
+    { id: 'lom_fratura_instavel',       label: 'Fratura lombar com instabilidade segmentar',                 pct: 40 },
+    { id: 'lom_lesao_radicular',        label: 'Lesão radicular (ciatalgia permanente com déficit)',          pct: 25 },
+    { id: 'lom_sindrome_cauda',         label: 'Síndrome da cauda equina (déficit esfincteriano)',           pct: 70 },
+    { id: 'lom_espondilolistese',       label: 'Espondilolistese grau III–IV pós-traumática',                pct: 30 },
+  ],
+  coluna_sacral: [
+    { id: 'sac_fratura_sacro',          label: 'Fratura do sacro com consolidação viciosa',                  pct: 25 },
+    { id: 'sac_lesao_sacroiliaca',      label: 'Lesão sacro-ilíaca com dor e instabilidade permanente',      pct: 30 },
+    { id: 'sac_disfuncao_esfincteriana',label: 'Disfunção esfincteriana permanente por lesão sacral',        pct: 50 },
+    { id: 'sac_lesao_plexo',           label: 'Lesão do plexo sacral com déficit neurológico permanente',   pct: 40 },
+    { id: 'sac_fratura_bacia',          label: 'Fratura da bacia com instabilidade do anel pélvico',         pct: 35 },
+  ],
+};
+
+// ════════════════════════════════
+//  UI HELPERS
+// ════════════════════════════════
+function toggleCol(el) {
+  el.classList.toggle('active');
+  let c = el.nextElementSibling;
+  c.style.display = (c.style.display === 'grid' || c.style.display === 'block') ? 'none' : 'grid';
+}
+
+function switchTab(tabId, e) {
+  currentTab = tabId;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  if(e) e.target.classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+// ════════════════════════════════
+//  MODAL
+// ════════════════════════════════
+function openModal(id, nome, taxa, tipo) {
+  document.getElementById('modal_membro_id').value = id;
+  document.getElementById('modal_membro_taxa').value = taxa || 0;
+  document.getElementById('modal_tipo').value = tipo;
+  document.getElementById('modal_membro_nome').innerText = nome;
+
+  // Badge
+  let badge = document.getElementById('modal_badge');
+
+  document.getElementById('modal_standard').style.display = 'none';
+  document.getElementById('modal_spine').style.display   = 'none';
+  document.querySelectorAll('input[name="grau_perda"]').forEach(r => r.checked = false);
+
+  if (tipo === 'spine') {
+    badge.textContent = 'Coluna Vertebral — SUSEP';
+    badge.style.background = '#1e40af';
+    document.getElementById('modal_spine').style.display = 'block';
+    renderSpineCriteria(id);
+  } else {
+    badge.textContent = `Tabela SUSEP: ${taxa}% (perda total)`;
+    badge.style.background = '#1a237e';
+    document.getElementById('modal_standard').style.display = 'block';
+  }
+
+  document.getElementById('susep-modal').style.display = 'block';
+}
+
+function fecharModal() {
+  document.getElementById('susep-modal').style.display = 'none';
+}
+
+function renderSpineCriteria(segmento) {
+  let criterios = spineCriteria[segmento] || [];
+  let container = document.getElementById('spine_criteria_list');
+  container.innerHTML = '';
+  criterios.forEach(c => {
+    container.innerHTML += `
+      <div class="criterion-row">
+        <input type="radio" name="spine_criterio" value="${c.pct}" id="sc_${c.id}" data-label="${c.label}">
+        <label for="sc_${c.id}">${c.label}</label>
+        <span class="pct-badge">${c.pct}%</span>
+      </div>`;
+  });
+}
+
+// ════════════════════════════════
+//  ADICIONAR LESÃO
+// ════════════════════════════════
+function addLesao() {
+  let id    = document.getElementById('modal_membro_id').value;
+  let taxa  = parseFloat(document.getElementById('modal_membro_taxa').value);
+  let nome  = document.getElementById('modal_membro_nome').innerText;
+  let tipo  = document.getElementById('modal_tipo').value;
+
+  let pctFinal, descricao;
+
+  if (tipo === 'spine') {
+    let radio = document.querySelector('input[name="spine_criterio"]:checked');
+    if (!radio) { alert('Selecione um critério de invalidez da coluna.'); return; }
+    pctFinal  = parseFloat(radio.value);
+    descricao = radio.dataset.label;
+  } else {
+    let radio = document.querySelector('input[name="grau_perda"]:checked');
+    if (!radio) { alert('Selecione o grau de redução funcional.'); return; }
+    let grau  = parseFloat(radio.value);
+    pctFinal  = taxa * grau;
+    descricao = `${(grau*100)}% de ${taxa}% (tabela)`;
+  }
+
+  // Remove lesão anterior do mesmo segmento e recolore
+  lesoes = lesoes.filter(l => l.id !== id);
+  let svgEl = document.getElementById('svg_' + id);
+  if (svgEl) svgEl.classList.add('selected');
+
+  lesoes.push({ id, nome, tipo, pctFinal, descricao });
+
+  fecharModal();
+  renderListaLesoes();
+}
+
+function removeLesao(id) {
+  lesoes = lesoes.filter(l => l.id !== id);
+  let svgEl = document.getElementById('svg_' + id);
+  if (svgEl) svgEl.classList.remove('selected');
+  renderListaLesoes();
+}
+
+function renderListaLesoes() {
+  let div = document.getElementById('lista-lesoes');
+  if (lesoes.length === 0) {
+    div.innerHTML = `<h3 style="font-size:0.95rem; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;">Lesões Avaliadas</h3>
+                     <p style="color:var(--text-muted); font-size:0.85rem;">Nenhuma lesão adicionada.</p>`;
+    return;
+  }
+  let html = `<h3 style="font-size:0.95rem; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;">Lesões Avaliadas (${lesoes.length})</h3>`;
+  lesoes.forEach(l => {
+    let isSpine = l.tipo === 'spine';
+    html += `
+      <div class="susep-item">
+        <div style="flex:1;">
+          <strong style="font-size:0.88rem;">${l.nome}</strong>
+          ${isSpine ? '<span style="font-size:0.7rem; background:#1e40af; color:#fff; padding:1px 6px; border-radius:8px; margin-left:6px;">Coluna</span>' : ''}
+          <br>
+          <small style="color:var(--text-muted);">${l.descricao}</small>
+          <br>
+          <small style="color:var(--accent); font-weight:700;">→ Invalidez: ${l.pctFinal.toFixed(1)}%</small>
+        </div>
+        <button class="remove-btn" onclick="removeLesao('${l.id}')">✕</button>
+      </div>`;
+  });
+  div.innerHTML = html;
+}
+
+// ════════════════════════════════
+//  CALCULAR SUSEP
+// ════════════════════════════════
+let lastSusepResult = {};
+function calcularSUSEP() {
+  if (lesoes.length === 0) { alert('Adicione pelo menos uma lesão clicando no boneco anatômico.'); return null; }
+
+  let total = 0;
+  lesoes.forEach(l => total += l.pctFinal);
+
+  let travado = false;
+  if (total > 100) { total = 100; travado = true; }
+
+  let valorBase  = parseFloat(document.getElementById('susep_valor').value) || 0;
+  let valorFinal = valorBase * (total / 100);
+
+  let div = document.getElementById('resultado-susep');
+  div.className = 'result-box';
+
+  let detalheHtml = lesoes.map(l =>
+    `<div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">• ${l.nome}: <strong style="color:#fff">${l.pctFinal.toFixed(1)}%</strong></div>`
+  ).join('');
+
+  let html = `
+    <strong>Percentual Total de Invalidez: ${total.toFixed(1)}%</strong>
+    ${detalheHtml}
+    ${travado ? `<div style="color:var(--accent); font-size:0.82rem; margin-top:6px;">⚠️ Soma ultrapassou 100% — limitada ao teto global SUSEP.</div>` : ''}
+    ${valorBase > 0
+      ? `<div style="color:var(--success); font-size:1.15rem; margin-top:10px; font-weight:700;">
+           💰 Indenização: R$ ${valorFinal.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+         </div>
+         <div style="font-size:0.8rem; color:var(--text-muted);">R$ ${valorBase.toLocaleString('pt-BR')} × ${total.toFixed(1)}%</div>`
+      : `<div style="font-size:0.82rem; color:var(--text-muted); margin-top:8px;">Informe o Valor Base para calcular R$.</div>`
+    }`;
+
+  div.innerHTML = html;
+  lastSusepResult = { total, valorFinal, valorBase };
+  return lastSusepResult;
+}
+
+// ════════════════════════════════
+//  CALCULAR IAIF
+// ════════════════════════════════
+let lastIaifResult = {};
+function calcularIAIF() {
+  let v1 = document.querySelector('input[name="iaif_v1"]:checked');
+  let v2 = document.querySelector('input[name="iaif_v2"]:checked');
+  let v3 = document.querySelector('input[name="iaif_v3"]:checked');
+  if (!v1 || !v2 || !v3) { alert('Preencha os três atributos fundamentais (itens 1, 2 e 3).'); return null; }
+
+  let pts = parseInt(v1.value) + parseInt(v2.value) + parseInt(v3.value);
+  if(document.getElementById('iaif_c1').checked) pts += 2;
+  if(document.getElementById('iaif_c2').checked) pts += 2;
+  if(document.getElementById('iaif_c3').checked) pts += 4;
+  if(document.getElementById('iaif_c4').checked) pts += 4;
+  if(document.getElementById('iaif_c5').checked) pts += 8;
+
+  let passou = pts >= 60;
+  let color  = passou ? 'var(--success)' : 'var(--danger)';
+  let txt    = passou
+    ? '✅ Aprovado: Invalidez Funcional Permanente Total configurada (≥ 60 pts).'
+    : '❌ Negado: Pontuação não atingiu o mínimo de 60 pontos exigido.';
+
+  let div = document.getElementById('resultado-iaif');
+  div.className = 'result-box';
+  div.style.borderLeftColor = color;
+  div.innerHTML = `<strong>Pontuação Final: ${pts} pontos</strong><br><span style="color:${color}">${txt}</span>`;
+
+  lastIaifResult = { pts, status: passou ? 'Aprovado' : 'Negado' };
+  return lastIaifResult;
+}
+
+// ════════════════════════════════
+//  SALVAR / HISTÓRICO
+// ════════════════════════════════
+function salvarRegistro() {
+  let nome = document.getElementById('segurado_nome').value;
+  if (!nome) { alert('Informe o Nome do Segurado.'); return; }
+
+  let registro = {
+    dataSalvo: new Date().toLocaleDateString('pt-BR'),
+    tipo: currentTab.toUpperCase(),
+    perito: document.getElementById('perito_nome').value,
+    paciente: nome,
+    cpf: document.getElementById('segurado_cpf').value
+  };
+
+  if (currentTab === 'iaif') {
+    let res = calcularIAIF(); if(!res) return;
+    registro.resultado = `${res.pts} pts — ${res.status}`;
+    registro.detalhes  = JSON.stringify(res);
+  } else {
+    let res = calcularSUSEP(); if(!res) return;
+    registro.resultado = `${res.total.toFixed(1)}% — R$ ${res.valorFinal.toFixed(2)}`;
+    registro.detalhes  = JSON.stringify(lesoes);
+  }
+
+  let hist = JSON.parse(localStorage.getItem('invalidez_historico') || '[]');
+  hist.push(registro);
+  localStorage.setItem('invalidez_historico', JSON.stringify(hist));
+  alert('Registro salvo com sucesso!');
+  carregarHistorico();
+}
+
+function carregarHistorico() {
+  let hist = JSON.parse(localStorage.getItem('invalidez_historico') || '[]');
+  let tb   = document.getElementById('tabela-registros');
+  tb.innerHTML = hist.length === 0
+    ? '<tr><td colspan="4" style="color:var(--text-muted); text-align:center;">Nenhum registro salvo.</td></tr>'
+    : hist.map(h => `<tr>
+        <td>${h.dataSalvo}</td>
+        <td>${h.paciente}</td>
+        <td>${h.tipo}</td>
+        <td style="font-weight:600; color:var(--success)">${h.resultado}</td>
+      </tr>`).join('');
+}
+
+// ════════════════════════════════
+//  EXPORTAÇÕES
+// ════════════════════════════════
+function gerarRelatorioLatex() {
+  let hist = JSON.parse(localStorage.getItem('invalidez_historico') || '[]');
+  if (hist.length === 0) { alert('Nenhum registro salvo para exportar LaTeX.'); return; }
+  let item = hist[hist.length-1];
+  let tpl = `\\documentclass[12pt,a4paper]{article}
 \\usepackage[utf8]{inputenc}
 \\usepackage[brazil]{babel}
 \\usepackage{geometry}
 \\geometry{margin=2.5cm}
 
-\\title{Relatório de Avaliação — Invalidez ${item.tipo}}
-\\author{${item.perito || 'Perito Não Informado'}}
+\\title{Relatório de Avaliação de Invalidez — ${item.tipo}}
+\\author{${item.perito || 'Perito não informado'}}
 \\date{${item.dataSalvo}}
 
 \\begin{document}
@@ -711,110 +736,85 @@
 \\end{itemize}
 
 \\section{Resultado da Avaliação}
-O paciente foi avaliado seguindo a metodologia ${item.tipo}.
+O paciente foi avaliado conforme a metodologia ${item.tipo}.
 \\textbf{Resultado Final:} ${item.resultado}
 
 \\end{document}`;
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([tpl], {type:'text/plain'}));
+  a.download = `Relatorio_${item.paciente.replace(/\s+/g,'_')}.tex`;
+  a.click();
+  alert('Relatório LaTeX gerado com sucesso!');
+}
 
-      let blob = new Blob([template], { type: "text/plain" });
-      let a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `Relatorio_${item.paciente.replace(/\s+/g,'_')}.tex`;
-      a.click();
-      alert("Relatório LaTeX gerado com sucesso!");
-    }
+function exportarCSV() {
+  let hist = JSON.parse(localStorage.getItem('invalidez_historico') || '[]');
+  if (hist.length === 0) { alert('Sem dados para exportar.'); return; }
+  let csv = 'Data,Paciente,CPF,Perito,Tipo,Resultado\n';
+  hist.forEach(h => { csv += `${h.dataSalvo},${h.paciente},${h.cpf},${h.perito},${h.tipo},${h.resultado}\n`; });
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'Exportacao_Invalidez.csv';
+  a.click();
+  alert('Arquivo CSV exportado com sucesso!');
+}
 
-    function exportarCSV() {
-      let hist = JSON.parse(localStorage.getItem('invalidez_historico') || '[]');
-      if(hist.length === 0) { alert("Sem dados."); return; }
-      let csv = "Data,Paciente,CPF,Perito,Tipo,Resultado\n";
-      hist.forEach(h => {
-        csv += `${h.dataSalvo},${h.paciente},${h.cpf},${h.perito},${h.tipo},${h.resultado}\n`;
-      });
-      let blob = new Blob([csv], { type: "text/csv" });
-      let a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "Exportacao_Invalidez.csv";
-      a.click();
-      alert("Arquivo CSV exportado com sucesso!");
-    }
+function copiarParaClipboard() {
+  let nome = document.getElementById('segurado_nome').value;
+  if (!nome) { alert('Preencha um caso antes de copiar.'); return; }
+  let texto = `--- AVALIAÇÃO DE INVALIDEZ ---\r\nPaciente: ${nome}\r\nTipo: ${currentTab.toUpperCase()}\r\n`;
+  if (currentTab === 'iaif') {
+    let r = calcularIAIF();
+    texto += `Pontuação: ${r ? r.pts : 0} pontos\r\nStatus: ${r ? r.status : '-'}`;
+  } else {
+    let r = calcularSUSEP();
+    texto += `Total Invalidez: ${r ? r.total.toFixed(1) : 0}%\r\nIndenização: R$ ${r ? r.valorFinal.toFixed(2) : 0}`;
+  }
+  try {
+    navigator.clipboard.writeText(texto).then(() => alert('Avaliação copiada para a área de transferência!'));
+  } catch {
+    let ta = document.createElement('textarea');
+    ta.value = texto; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    alert('Avaliação copiada para a área de transferência!');
+  }
+}
 
-    function copiarParaClipboard() {
-      let nome = document.getElementById('segurado_nome').value;
-      if (!nome) { alert("Preencha um caso e salve antes de copiar."); return; }
-      
-      let texto = `--- AVALIAÇÃO DE INVALIDEZ ---\r\nPaciente: ${nome}\r\n`;
-      texto += `Tipo: ${currentTab.toUpperCase()}\r\n`;
-      
-      if(currentTab === 'iaif') {
-        let r = calcularIAIF();
-        texto += `Pontuação: ${r? r.pts:0} pontos\r\nStatus: ${r? r.status:'-'}`;
-      } else {
-        let r = calcularSUSEP();
-        texto += `Total Invalidez: ${r? r.totalInvalidez:0}%\r\nValor Indenização: R$ ${r? r.valorFinal.toFixed(2):0}`;
-      }
+function simularDados() {
+  document.getElementById('perito_nome').value     = 'Dr. Gabriel Câmara';
+  document.getElementById('perito_registro').value = 'CRM-SP 123456';
+  document.getElementById('perito_local').value    = 'Clínica Veridicus';
+  document.getElementById('perito_data').value     = '2026-04-05';
+  document.getElementById('segurado_nome').value   = 'José da Silva Santos';
+  document.getElementById('segurado_cpf').value    = '111.222.333-44';
+  document.getElementById('segurado_nasc').value   = '1975-08-12';
+  document.querySelector('input[name="iaif_v1"][value="10"]').checked = true;
+  document.querySelector('input[name="iaif_v2"][value="20"]').checked = true;
+  document.querySelector('input[name="iaif_v3"][value="10"]').checked = true;
+  document.getElementById('iaif_c1').checked = true;
+  document.getElementById('iaif_c3').checked = true;
+  document.getElementById('susep_valor').value = 50000;
+  alert('Dados simulados inseridos com sucesso!');
+}
 
-      // O navegador precisa ter foco e a API ativada, use fallback
-      try {
-        navigator.clipboard.writeText(texto).then(() => {
-          alert("Avaliação copiada para a área de transferência!");
-        });
-      } catch (err) {
-        let textArea = document.createElement("textarea");
-        textArea.value = texto;
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        alert("Avaliação copiada para a área de transferência!");
-      }
-    }
+function apagarTodosDados() {
+  if (confirm('Tem certeza que deseja apagar TODOS os registros? Esta ação é irreversível.')) {
+    localStorage.removeItem('invalidez_historico');
+    document.querySelectorAll('input[type="text"], input[type="date"], input[type="number"]').forEach(i => i.value = '');
+    document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(i => i.checked = false);
+    lesoes = [];
+    renderListaLesoes();
+    document.querySelectorAll('.svg-part.selected, .svg-spine.selected').forEach(s => s.classList.remove('selected'));
+    document.getElementById('resultado-iaif').innerHTML = '';
+    document.getElementById('resultado-susep').innerHTML = '';
+    fecharModal();
+    carregarHistorico();
+    alert('Todos os dados foram apagados com sucesso.');
+  }
+}
 
-    function simularDados() {
-      document.getElementById('perito_nome').value = "Dr. Gabriel Câmara";
-      document.getElementById('perito_registro').value = "CRM-SP 123456";
-      document.getElementById('perito_local').value = "Clínica Veridicus";
-      document.getElementById('perito_data').value = "2026-04-05";
-      document.getElementById('segurado_nome').value = "José da Silva Santos";
-      document.getElementById('segurado_cpf').value = "111.222.333-44";
-      document.getElementById('segurado_nasc').value = "1975-08-12";
-      
-      // IAIF
-      document.querySelector('input[name="iaif_v1"][value="10"]').checked = true;
-      document.querySelector('input[name="iaif_v2"][value="20"]').checked = true;
-      document.querySelector('input[name="iaif_v3"][value="10"]').checked = true;
-      document.getElementById('iaif_c1').checked = true;
-      document.getElementById('iaif_c3').checked = true;
-      
-      // SUSEP
-      document.getElementById('susep_valor').value = 50000;
-      
-      alert("Dados simulados inseridos com sucesso!");
-    }
-
-    function apagarTodosDados() {
-      if(confirm("Tem certeza que deseja apagar TODOS os registros? Esta ação é irreversível.")) {
-        localStorage.removeItem('invalidez_historico');
-        
-        // Clear forms
-        document.querySelectorAll('input[type="text"], input[type="date"], input[type="number"]').forEach(i => i.value = '');
-        document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(i => i.checked = false);
-        
-        lesoes = [];
-        renderListaLesoes();
-        document.querySelectorAll('.svg-part.selected').forEach(s => s.classList.remove('selected'));
-        document.getElementById('resultado-iaif').innerHTML = '';
-        document.getElementById('resultado-susep').innerHTML = '';
-        
-        carregarHistorico();
-        alert("Todos os dados foram apagados com sucesso.");
-      }
-    }
-
-    window.onload = () => {
-      carregarHistorico();
-    };
-  </script>
+window.onload = () => { carregarHistorico(); };
+</script>
 </body>
 </html>
+
