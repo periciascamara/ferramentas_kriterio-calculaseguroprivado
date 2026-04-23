@@ -4,8 +4,11 @@
 > 🤖 *Este web app foi desenvolvido na plataforma [claude.ai](https://claude.ai)*
 ---
 📋 Sobre o Projeto
-Este web app faz parte do ecossistema de ferramentas Kriterio para médicos peritos judiciais. Ele permite calcular de forma precisa e padronizada o valor de indenização por invalidez permanente, aplicando as diretrizes oficiais da SUSEP e o algoritmo IAIF (Índice de Avaliação de Invalidez Funcional).
+Este web app faz parte do ecossistema de ferramentas Kriterio para médicos peritos judiciais. Ele permite calcular de forma precisa e padronizada o valor de indenização por invalidez permanente, com base nas tabelas **IAIF** e **SUSEP**.
+
 O aplicativo é entregue como um único arquivo `.html` — sem servidor, sem dependências externas, funciona diretamente no navegador em qualquer computador.
+
+> **Versão atual:** **v1.3.0**
 ---
 🗂️ Estrutura do Repositório
 ```
@@ -24,6 +27,8 @@ Funcionalidade	Descrição
 📝 Cadastro do Avaliado	Nome, data de nascimento, CPF, contato
 👨‍⚕️ Cadastro do Aplicador	Nome do perito, CRM, instituição, data/local
 🧮 Avaliação IAIF + SUSEP	Cálculo completo de invalidez com tabela oficial
+👁️ Avaliar perda da acuidade visual	Registro e classificação de perda visual como parte da avaliação pericial
+💪 Sinalizar alteração específica do ombro	Campo dedicado para marcar e descrever alterações específicas do ombro (ex.: limitação, dor, instabilidade)
 📄 Gerar Relatório LaTeX	Download automático do relatório `.tex`
 📊 Exportar CSV	Exportação de todos os registros
 📋 Copiar para Clipboard	Cópia da avaliação em texto estruturado
@@ -37,6 +42,11 @@ Tipografia: `Segoe UI`, Tahoma, Geneva, Verdana — mínimo `14px`
 Layout: responsivo (mobile-first), glassmorphism
 Versionamento: SemVer visível no header e footer (`vMAJOR.MINOR.PATCH`)
 ---
+🧾 Changelog (resumo)
+- **v1.3.0 (23 abr 2026)**
+  - Inclusão da funcionalidade de **avaliar perda da acuidade visual**.
+  - Inclusão de **sinalização de alteração específica do ombro**.
+---
 🔗 Contato
 Canal	Link
 🔗 LinkedIn	linkedin.com/in/gcamara
@@ -45,19 +55,23 @@ Canal	Link
 ---
 📐 Padrão de Desenvolvimento (PRD)
 Este projeto segue o Padrão de Desenvolvimento de Web Apps Single-File do ecossistema Perícias Câmara / Veridicus I.A. Os principais requisitos são:
+
 Arquivo Único
 Todo HTML, CSS e JavaScript em um único arquivo `.html`
 Sem dependências externas — funciona 100% offline
 Nome de arquivo segue: `app-nome-do-projeto-vX.Y.Z.html`
+
 Versionamento Semântico
 Padrão SemVer (`MAJOR.MINOR.PATCH`)
 Versão visível na interface (header e/ou footer)
 Changelog resumido incluído no próprio arquivo
+
 Botões de Ação (Barra de Ações)
 🟢 Verde — Salvar / Gerar
 🔵 Azul — Exportar / Copiar
 🟡 Dourado — Simular Dados
 🔴 Vermelho — Apagar Tudo
+
 Estrutura Obrigatória da Página
 Header (logo + versão + contatos)
 Seção Cadastro do Aplicador (colapsável)
@@ -66,6 +80,7 @@ Seção de Avaliação / Questionário
 Barra de Ações
 Tabela/Lista de Registros Salvos
 Footer (versão + créditos + contatos)
+
 Funções JavaScript Obrigatórias
 ```javascript
 salvarRegistro()
